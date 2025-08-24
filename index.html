@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Aplicación de Análisis de Audio con Frecuencias y Transcripción</title>
+    <style>
+      .nav-links {
+        position: fixed;
+        top: 10px;
+        right: 10px;
+        background-color: rgba(56, 60, 68, 0.8);
+        padding: 10px;
+        border-radius: 5px;
+        z-index: 1000;
+      }
+      .nav-links a {
+        color: #9f7aea;
+        margin: 0 10px;
+        text-decoration: none;
+      }
+      .nav-links a:hover {
+        text-decoration: underline;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="nav-links">
+      <a href="/analizador-audio.html">Analizador de Audio</a>
+      <a href="/transcripcion.html">Transcripción Inteligente</a>
+    </div>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

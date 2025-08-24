@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transcripción Inteligente</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #282c34;
+            color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            background-color: #383c44;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+        }
+        h1 {
+            margin-top: 0;
+            color: #9f7aea;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        textarea {
+            width: 100%;
+            height: 200px;
+            background-color: #1a1a1a;
+            color: #ffffff;
+            border: none;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 20px;
+            resize: vertical;
+            font-family: Arial, sans-serif;
+        }
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            color: white;
+            transition: background-color 0.3s;
+            margin: 0 5px;
+        }
+        #start-button {
+            background-color: #10b981; /* Verde */
+        }
+        #start-button:hover {
+            background-color: #059669;
+        }
+        #stop-button {
+            background-color: #ef4444; /* Rojo */
+        }
+        #stop-button:hover {
+            background-color: #dc2626;
+        }
+        #transcription-container {
+            width: 100%;
+        }
+        /* Estilos para la navegación */
+        .nav-links {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background-color: rgba(56, 60, 68, 0.8);
+            padding: 10px;
+            border-radius: 5px;
+            z-index: 1000;
+        }
+        .nav-links a {
+            color: #9f7aea;
+            margin: 0 10px;
+            text-decoration: none;
+        }
+        .nav-links a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="nav-links">
+        <a href="/index.html">Inicio</a>
+        <a href="/analizador-audio.html">Analizador de Audio</a>
+    </div>
+    <div class="container">
+        <div id="transcription-container">
+            <h1>Transcripción Inteligente</h1>
+            <textarea id="output" placeholder="La transcripción aparecerá aquí..."></textarea>
+            <div>
+                <button id="start-button">Iniciar Transcripción</button>
+                <button id="stop-button" disabled>Detener Transcripción</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const output = document.getElementById('output');
+        const startButton = document.getElementById('start-button');
+        const stopButton = document.getElementById('stop-button');
+
+        // Revisa si el navegador soporta la API Web Speech
+        if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            const recognition = new SpeechRecognition();
+
+            recognition.continuous = true;
+            recognition.interimResults = false;
+            recognition.lang = 'es-ES'; // o el idioma que necesites
+
+            recognition.onresult = (event) => {
+                let transcript = '';
+                for (let i = event.resultIndex; i < event.results.length; ++i) {
+                    if (event.results[i].isFinal) {
+                        transcript += event.results[i][0].transcript;
+                    }
+                }
+                output.value += transcript;
+            };
+
+            recognition.onerror = (event) => {
+                console.error('Error de reconocimiento de voz:', event.error);
+                startButton.disabled = false;
+                stopButton.disabled = true;
+            };
+
+            startButton.addEventListener('click', () => {
+                recognition.start();
+                startButton.disabled = true;
+                stopButton.disabled = false;
+            });
+
+            stopButton.addEventListener('click', () => {
+                recognition.stop();
+                startButton.disabled = false;
+                stopButton.disabled = true;
+            });
+        } else {
+            output.value = 'Lo sentimos, tu navegador no soporta la API de reconocimiento de voz.';
+            startButton.disabled = true;
+            stopButton.disabled = true;
+        }
+    </script>
+</body>
+</html>
