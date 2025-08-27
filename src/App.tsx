@@ -39,6 +39,8 @@ function App() {
   const animationRef = useRef<number>();
   const streamRef = useRef<MediaStream | null>(null);
   const restartTimeoutRef = useRef<number | undefined>();
+  const [microphonePermission, setMicrophonePermission] = useState<'granted' | 'denied' | 'prompt'>('prompt');
+  const [audioError, setAudioError] = useState<string | null>(null);
 
   // Inicializar reconocimiento de voz con manejo de errores mejorado
   useEffect(() => {
@@ -344,9 +346,23 @@ function App() {
   // Iniciar grabación mejorada
   const startRecording = async () => {
     try {
+      setAudioError(null);
+      
       // Detener cualquier stream anterior si existe
       if (streamRef.current) {
         streamRef.current.getTracks().forEach(track => track.stop());
+      }
+
+      // Verificar permisos del micrófono
+      try {
+        const permissionStatus = await navigator.permissions.query({ name: 'microphone' as PermissionName });
+        setMicrophonePermission(permissionStatus.state);
+        
+        if (permissionStatus.state === 'denied') {
+          throw new Error('Permisos del micrófono denegados. Por favor, permite el acceso al micrófono en la configuración del navegador.');
+        }
+      } catch (permError) {
+        console.warn('No se pudo verificar permisos:', permError);
       }
 
       const stream = await navigator.mediaDevices.getUserMedia({ 
@@ -361,6 +377,7 @@ function App() {
       
       // Guardar el stream para que esté disponible para el AudioListener
       streamRef.current = stream;
+      setMicrophonePermission('granted');
 
       // Configurar contexto de audio con mejor configuración
       if (audioContextRef.current && audioContextRef.current.state !== 'closed') {
@@ -386,7 +403,9 @@ function App() {
 
     } catch (error) {
       console.error('Error al acceder al micrófono:', error);
-      alert('Error al acceder al micrófono. Por favor, permite el acceso al micrófono.');
+      const errorMessage = error instanceof Error ? error.message : 'Error desconocido al acceder al micrófono';
+      setAudioError(errorMessage);
+      setMicrophonePermission('denied');
     }
   };
 
@@ -805,11 +824,21 @@ function App() {
         </div>
 
         {/* Visualización de Frecuencias */}
-        <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700">
+        <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700 mb-8">
           <h2 className="text-2xl font-bold text-green-400 mb-6 flex items-center gap-2">
             <BarChart3 className="w-6 h-6" />
             {t('spectralVisualization')}
           </h2>
+          
+          {/* Canvas para visualización en tiempo real */}
+          <div className="mb-6">
+            <canvas
+              ref={canvasRef}
+              width={800}
+              height={200}
+              className="w-full bg-black rounded-lg border border-green-500/30"
+            />
+          </div>
           
           <FrequencyBarsVisualizer />
           

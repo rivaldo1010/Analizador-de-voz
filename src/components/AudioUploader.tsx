@@ -18,18 +18,25 @@ export const AudioUploader: React.FC<AudioUploaderProps> = ({ onAudioAnalysis, o
   const audioContextRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
   const animationRef = useRef<number>();
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setUploadError(null);
+    setIsLoading(true);
+    
     const file = event.target.files?.[0];
     if (!file) {
       console.error('No se seleccionó ningún archivo');
+      setIsLoading(false);
       return;
     }
     
     if (!file.type.startsWith('audio/')) {
       console.error('El archivo seleccionado no es un archivo de audio');
-      alert('Por favor, seleccione un archivo de audio válido (MP3, WAV, etc.)');
+      setUploadError('Por favor, seleccione un archivo de audio válido (MP3, WAV, etc.)');
       event.target.value = ''; // Limpiar el input para permitir seleccionar el mismo archivo nuevamente
+      setIsLoading(false);
       return;
     }
     
@@ -98,26 +105,31 @@ export const AudioUploader: React.FC<AudioUploaderProps> = ({ onAudioAnalysis, o
             
             if (audioRef.current.readyState === 0) {
               console.warn('El audio no se ha cargado correctamente después de 5 segundos');
-              alert('El archivo de audio está tardando en cargar. Puede que el archivo sea demasiado grande o esté dañado.');
+              setUploadError('El archivo de audio está tardando en cargar. Puede que el archivo sea demasiado grande o esté dañado.');
             }
           }
+          setIsLoading(false);
         }, 5000);
         
         // Limpiar el timeout cuando el audio se cargue
         audioRef.current.onloadeddata = () => {
           clearTimeout(loadTimeout);
           console.log('Audio cargado correctamente. Duración:', audioRef.current?.duration);
+          setIsLoading(false);
         };
       } else {
         console.error('No se pudo acceder al elemento de audio');
+        setUploadError('No se pudo acceder al elemento de audio');
+        setIsLoading(false);
       }
       
       // Limpiar el input para permitir seleccionar el mismo archivo nuevamente
       event.target.value = '';
     } catch (error) {
       console.error('Error al cargar el archivo de audio:', error);
-      alert('Error al cargar el archivo de audio. Intente con otro archivo.');
+      setUploadError('Error al cargar el archivo de audio. Intente con otro archivo.');
       event.target.value = '';
+      setIsLoading(false);
     }
   };
 
@@ -571,20 +583,35 @@ export const AudioUploader: React.FC<AudioUploaderProps> = ({ onAudioAnalysis, o
       </h2>
 
       <div className="space-y-4">
+        {/* Mostrar errores */}
+        {uploadError && (
+          <div className="p-3 bg-red-900/50 border border-red-500 rounded-lg">
+            <p className="text-red-300 text-sm">{uploadError}</p>
+            <button
+              onClick={() => setUploadError(null)}
+              className="mt-2 px-2 py-1 bg-red-600 hover:bg-red-700 text-white rounded text-xs"
+            >
+              Cerrar
+            </button>
+          </div>
+        )}
+
         <div className="flex items-center gap-4">
           <input
             ref={fileInputRef}
             type="file"
             accept="audio/*"
             onChange={handleFileUpload}
+            disabled={isLoading}
             className="hidden"
           />
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-all"
+            disabled={isLoading}
+            className="flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Upload className="w-4 h-4" />
-            {t('uploadAudio')}
+            {isLoading ? 'Cargando...' : t('uploadAudio')}
           </button>
           
           {uploadedFile && (

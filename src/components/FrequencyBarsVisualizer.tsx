@@ -7,6 +7,7 @@ const FrequencyBarsVisualizer: React.FC = () => {
   const [voiceActive, setVoiceActive] = useState(false);
   const [voiceIntensity, setVoiceIntensity] = useState<'normal' | 'medium' | 'high'>('normal');
   const [showHelp, setShowHelp] = useState(false);
+  const [microphoneError, setMicrophoneError] = useState<string | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
   const microphoneRef = useRef<MediaStreamAudioSourceNode | null>(null);
@@ -48,6 +49,7 @@ const FrequencyBarsVisualizer: React.FC = () => {
     // Start audio context and analyser
     const startAnalyzing = async () => {
       try {
+        setMicrophoneError(null);
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
         const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
         const analyser = audioContext.createAnalyser();
@@ -138,6 +140,7 @@ const FrequencyBarsVisualizer: React.FC = () => {
         visualize();
       } catch (error) {
         console.error('Error accessing microphone:', error);
+        setMicrophoneError(error instanceof Error ? error.message : 'Error desconocido al acceder al micrófono');
         setIsAnalyzing(false);
       }
     };
@@ -188,6 +191,19 @@ const FrequencyBarsVisualizer: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* Mostrar errores del micrófono */}
+      {microphoneError && (
+        <div className="mb-4 p-3 bg-red-900/50 border border-red-500 rounded-lg">
+          <p className="text-red-300 text-sm">{microphoneError}</p>
+          <button
+            onClick={() => setMicrophoneError(null)}
+            className="mt-2 px-2 py-1 bg-red-600 hover:bg-red-700 text-white rounded text-xs"
+          >
+            Cerrar
+          </button>
+        </div>
+      )}
 
       <div id="analyzerContainer" className="bg-gray-800 rounded-xl p-6 shadow-lg mb-8">
         <div id="statusIndicator" className="flex items-center mb-6">
