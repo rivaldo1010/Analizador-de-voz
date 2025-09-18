@@ -1,0 +1,182 @@
+<!DOCTYPE html> 
+<html lang="es"> 
+<head> 
+    <meta charset="UTF-8"> 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+    <title>Analizador de Audio</title> 
+    <style> 
+        body { 
+            font-family: Arial, sans-serif; 
+            background-color: #282c34; 
+            color: #ffffff; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh; 
+            margin: 0; 
+            padding: 20px; 
+        } 
+        .container { 
+            background-color: #383c44; 
+            padding: 20px; 
+            border-radius: 10px; 
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); 
+            width: 100%; 
+            max-width: 600px; 
+            text-align: center; 
+        } 
+        h2 { 
+            margin-top: 0; 
+            color: #9f7aea; /* Color púrpura similar al del componente React */ 
+            font-size: 24px; 
+            margin-bottom: 20px; 
+        } 
+        input[type="file"] { 
+            display: none; 
+        } 
+        .custom-file-upload { 
+            border: 2px solid #9f7aea; /* Cambiado a púrpura */ 
+            display: inline-block; 
+            padding: 10px 20px; 
+            cursor: pointer; 
+            border-radius: 5px; 
+            margin-bottom: 20px; 
+            background-color: transparent; 
+            color: white; 
+            transition: all 0.3s ease; 
+        } 
+        .custom-file-upload:hover { 
+            background-color: #9f7aea; 
+            color: white; 
+        } 
+        audio { 
+            width: 100%; 
+            margin-top: 20px; 
+            background-color: #1a1a1a; 
+            border-radius: 5px; 
+        } 
+        #audioPlayerContainer { 
+            margin-top: 20px; 
+        } 
+        #fileName { 
+            color: #9f7aea; 
+            font-size: 14px; 
+            margin-bottom: 10px; 
+        } 
+        /* Estilos para la visualización de frecuencia */ 
+        #dominantFrequency { 
+            margin-top: 15px; 
+            font-family: monospace; 
+            font-size: 18px; 
+            color: #4ade80; /* Verde */ 
+        } 
+        /* Estilos para botones de control */ 
+        #controlButtons { 
+            display: flex; 
+            gap: 10px; 
+            margin-top: 15px; 
+        } 
+        #controlButtons button { 
+            flex: 1; 
+            padding: 8px 16px; 
+            border: none; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            color: white; 
+            transition: background-color 0.3s; 
+        } 
+        #playButton { 
+            background-color: #10b981; /* Verde */ 
+        } 
+        #playButton:hover { 
+            background-color: #059669; 
+        } 
+        button[onclick="resetAudio()"] { 
+            background-color: #4b5563; /* Gris */ 
+        } 
+        button[onclick="resetAudio()"]:hover { 
+            background-color: #374151; 
+        } 
+        #saveButton {
+            background-color: #6366f1; /* Indigo */
+        }
+        #saveButton:hover {
+            background-color: #4f46e5;
+        }
+        /* Estilos para la barra de progreso */ 
+        #timeDisplay { 
+            background-color: rgba(0, 0, 0, 0.3); 
+            padding: 10px; 
+            border-radius: 5px; 
+            margin-top: 10px; 
+        } 
+        #timeDisplay > div:first-child { 
+            display: flex; 
+            justify-content: space-between; 
+            font-size: 14px; 
+            color: #a0aec0; 
+            margin-bottom: 5px; 
+        } 
+        #progressBar { 
+            background-color: #9f7aea; 
+            height: 8px; 
+            border-radius: 9999px; 
+            width: 0%; 
+            transition: width 0.1s; 
+        } 
+        #progressBar-container { 
+            width: 100%; 
+            background-color: #4a5568; 
+            border-radius: 9999px; 
+            height: 8px; 
+        }
+        /* Estilos para la navegación */
+        .nav-links {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background-color: rgba(56, 60, 68, 0.8);
+            padding: 10px;
+            border-radius: 5px;
+            z-index: 1000;
+        }
+        .nav-links a {
+            color: #9f7aea;
+            margin: 0 10px;
+            text-decoration: none;
+        }
+        .nav-links a:hover {
+            text-decoration: underline;
+        }
+    </style> 
+</head> 
+<body>
+    <div class="nav-links">
+        <a href="/index.html">Inicio</a>
+        <a href="/transcripcion.html">Transcripción Inteligente</a>
+    </div> 
+
+<div class="container"> 
+    <h2>Analizador de Audio</h2> 
+    <label for="audioFile" class="custom-file-upload"> 
+        Cargar Audio 
+    </label> 
+    <input type="file" id="audioFile" accept="audio/*"> 
+    
+    <div id="audioPlayerContainer" style="display:none;"> 
+        <p id="fileName"></p> 
+        <audio id="audioPlayer" controls preload="auto" crossorigin="anonymous"></audio> 
+        
+        <!-- Los siguientes elementos se crearán dinámicamente mediante JavaScript --> 
+        <!-- Visualización de tiempo y progreso --> 
+        <!-- Canvas para visualización de frecuencia --> 
+        <!-- Visualización de frecuencia dominante --> 
+        <!-- Botones de control --> 
+    </div> 
+</div> 
+
+<!-- Script para análisis de audio --> 
+<script src="audio-analyzer.js"></script> 
+
+</body> 
+</html>
